@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+.venv/
+venv/
+__pycache__/
+*.pyc
+photo_cache/
+deals.json
+test_drives.json
+.DS_Store
+*.zip

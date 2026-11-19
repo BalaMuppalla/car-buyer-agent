@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Roarwell Motors - find your next ride</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ff6a1f'/%3E%3Ctext x='32' y='46' font-size='40' font-weight='800' text-anchor='middle' fill='white' font-family='Arial'%3ER%3C/text%3E%3C/svg%3E">
+  <link rel="stylesheet" href="style.css?v=20261119">
+  <link rel="stylesheet" href="intro.css?v=20261119">
+</head>
+<body>
+  <div id="racers-back" class="racer-layer" aria-hidden="true"></div>
+
+  <header class="top">
+    <a class="logo" href="#" data-tip="Roarwell Motors - back to the top">
+      <span class="logo-mark">R</span><span>Roarwell <b>Motors</b></span>
+    </a>
+    <nav class="top-actions">
+      <button id="btn-shortlist" class="pill" data-tip="Cars you saved with the heart. Click to see them.">
+        &#9829; Shortlist <span id="shortlist-count" class="count">0</span>
+      </button>
+      <button id="btn-compare" class="pill" data-tip="Tick two cars with 'Compare', then click here to see them side by side.">
+        &#8644; Compare <span id="compare-count" class="count">0</span>
+      </button>
+      <button id="btn-racers" class="pill ghost" data-tip="Turn the little racing cars on or off" aria-pressed="true">&#127950; Racers</button>
+      <button id="btn-sound" class="pill ghost" data-tip="Turn sound effects on or off" aria-pressed="true">&#128266; Sound</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <small>Roarwell Motors</small>
+      <h1>Welcome to Paradise. Time to wake the beasts.</h1>
+      <p>Pick what matters to you and the cars below update instantly. Not sure where to start? Alex will help.</p>
+      <div class="hero-actions">
+        <button class="pill primary" id="hero-alex" data-tip="Chat with Alex, our car expert, and get picks made for you">Help me choose</button>
+      </div>
+    </section>
+
+    <section class="filters" aria-label="Filters">
+      <label data-tip="The most you want to spend. Drag to change.">
+        <span>Budget: <b id="budget-label">any</b></span>
+        <input id="f-budget" type="range" min="10000" max="100000" step="5000" value="100000">
+      </label>
+      <label data-tip="What the car runs on">
+        <span>Fuel</span>
+        <select id="f-fuel"><option value="">Any</option></select>
+      </label>
+      <label data-tip="How many people need to fit. Shows cars with at least this many seats.">
+        <span>People</span>
+        <select id="f-seats">
+          <option value="">Any</option><option value="2">2+</option><option value="4">4+</option>
+          <option value="5">5+</option><option value="7">7+</option>
+        </select>
+      </label>
+      <label data-tip="Body style: sedan, SUV, truck and so on">
+        <span>Type</span>
+        <select id="f-type"><option value="">Any</option></select>
+      </label>
+      <label data-tip="Only show one brand">
+        <span>Brand</span>
+        <select id="f-brand"><option value="">Any</option></select>
+      </label>
+      <label data-tip="Modern cars, classics, or both">
+        <span>Age</span>
+        <select id="f-era">
+          <option value="">Modern + classic</option><option value="modern">Modern</option><option value="classic">Classic</option>
+        </select>
+      </label>
+      <label data-tip="How the list is ordered. 'Resale value' puts cars that keep their price best first.">
+        <span>Sort by</span>
+        <select id="f-sort">
+          <option value="resale">Resale value</option><option value="price">Price: low to high</option>
+          <option value="priceDesc">Price: high to low</option><option value="name">Name</option>
+        </select>
+      </label>
+      <button id="f-reset" class="pill ghost" data-tip="Clear all filters">Reset</button>
+    </section>
+
+    <p id="result-line" class="result-line" aria-live="polite"></p>
+    <section id="grid" class="grid"></section>
+    <section id="empty" class="empty" hidden>
+      <h2>Nothing fits all of that.</h2>
+      <p id="empty-text"></p>
+      <div id="empty-actions" class="chips"></div>
+    </section>
+
+    <footer class="foot">
+      Prices, mileage and resale figures are rounded sample numbers for learning, not offers.
+      Car makers' names are used only to describe the cars. Roarwell Motors is a practice project and is not affiliated with any car maker.
+      Photos come from Wikimedia Commons under their own free licences; open a car to see its credit. Intro 3D car: "Car Concept" by Eric Chadwick, CC BY 4.0.
+      <a href="#" id="replay-intro">Replay intro</a>
+    </footer>
+  </main>
+
+  <!-- Car details -->
+  <dialog id="modal" aria-labelledby="m-title">
+    <button class="close" data-close data-tip="Close" aria-label="Close">&times;</button>
+    <div id="m-photo" class="m-photo"></div>
+    <p id="m-credit" class="m-credit"></p>
+    <div class="dlg-pad">
+    <h2 id="m-title"></h2>
+    <p id="m-sub" class="muted"></p>
+    <div id="m-facts" class="facts"></div>
+
+    <div class="block">
+      <h3 data-tip="A guess at what the car will still be worth in 5 years.">Worth after 5 years</h3>
+      <div class="bar"><div id="m-bar"></div></div>
+      <p id="m-resale" class="muted"></p>
+    </div>
+
+    <div class="block">
+      <h3 data-tip="A rough monthly payment. Drag the sliders to try different plans.">Monthly payment estimate</h3>
+      <div class="sliders">
+        <label data-tip="Money you pay on day one"><span>Pay up front: <b id="pay-down-l"></b></span><input id="pay-down" type="range" min="0" max="50" step="5" value="10"></label>
+        <label data-tip="How many years to pay it off"><span>Years: <b id="pay-years-l"></b></span><input id="pay-years" type="range" min="2" max="7" step="1" value="5"></label>
+        <label data-tip="Yearly interest rate on the loan (example value)"><span>Interest: <b id="pay-apr-l"></b></span><input id="pay-apr" type="range" min="0" max="12" step="0.5" value="6"></label>
+      </div>
+      <p class="big" id="pay-out"></p>
+      <label class="inline" data-tip="Used to estimate your yearly fuel cost"><span>Miles you drive a day: <b id="miles-l"></b></span><input id="miles" type="range" min="5" max="100" step="5" value="25"></label>
+      <p class="big" id="fuel-out"></p>
+    </div>
+
+    <div class="actions">
+      <button id="m-save" class="pill" data-tip="Save this car to your shortlist">&#9825; Save</button>
+      <button id="m-compare" class="pill" data-tip="Add to compare (pick two)">&#8644; Compare</button>
+      <button id="m-ask" class="pill" data-tip="Ask Alex about this car">Ask Alex</button>
+      <button id="m-choose" class="pill primary" data-tip="See every spec of this car">&#10003; This is the one!</button>
+    </div>
+
+    <div id="m-specs" class="specs" hidden>
+      <table><tbody id="m-spec-rows"></tbody></table>
+      <p class="tagline">Let's go for a spin!</p>
+      <div class="actions next-steps">
+        <button id="m-deal" class="pill primary" data-tip="Chat with Alex about price, payments and APR">&#128172; Make a deal with Alex</button>
+        <button id="m-drive" class="pill" data-tip="Ask Alex to book a test drive">&#128663; Book a test drive</button>
+      </div>
+    </div>
+    </div>
+  </dialog>
+
+  <!-- Compare -->
+  <dialog id="compare-dlg" aria-labelledby="c-title">
+    <button class="close" data-close aria-label="Close">&times;</button>
+    <h2 id="c-title">Side by side</h2>
+    <div id="c-body"></div>
+  </dialog>
+
+  <!-- Shortlist -->
+  <dialog id="shortlist-dlg" aria-labelledby="s-title">
+    <button class="close" data-close aria-label="Close">&times;</button>
+    <h2 id="s-title">Your shortlist</h2>
+    <div id="s-body"></div>
+  </dialog>
+
+  <dialog id="deal-dlg" aria-labelledby="deal-title">
+    <div class="ticket" id="deal-body"></div>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="racers-front" class="racer-layer front"></div>
+
+  <!-- Alex -->
+  <button id="alex-fab" class="alex-fab pulse" data-tip="Ask Alex anything about these cars" aria-label="Open chat with Alex">
+    <span class="alex-avatar">A</span><span>Ask Alex</span>
+  </button>
+  <section id="alex-panel" class="alex-panel" aria-label="Chat with Alex">
+    <div class="alex-head">
+      <span class="alex-avatar">A</span>
+      <div><b>Alex</b><small>Your car expert at Roarwell</small></div>
+      <button id="alex-reset" data-tip="Start the chat over" aria-label="Start over">&#8635;</button>
+      <button id="alex-close" aria-label="Close chat">&times;</button>
+    </div>
+    <div id="alex-log" class="alex-log" aria-live="polite"></div>
+    <div id="alex-quick" class="quick"></div>
+    <form id="alex-form" class="alex-form" autocomplete="off">
+      <input id="alex-input" placeholder="Type to Alex..." aria-label="Message to Alex">
+      <button id="alex-send" type="submit">Send</button>
+    </form>
+  </section>
+
+  <div id="intro" class="intro" hidden></div>
+
+  <script type="importmap">{"imports":{"three":"/vendor/three/three.module.js","three/addons/":"/vendor/three/addons/"}}</script>
+  <script src="art.js?v=20261119"></script>
+  <script src="sound.js?v=20261119"></script>
+  <script src="racers.js?v=20261119"></script>
+  <script src="app.js?v=20261119"></script>
+  <script src="alex.js?v=20261119"></script>
+  <script src="intro.js?v=20261119"></script>
+  <script type="module" src="intro3d.js?v=20261119"></script>
+  <script>
+    /* Safety net: "Help me choose" always opens Alex, even if another script had a problem or an old copy was cached. */
+    document.addEventListener('click', function (e) {
+      var btn = e.target.closest && e.target.closest('#hero-alex');
+      if (!btn) return;
+      try { if (window.Alex) { window.Alex.open(); return; } } catch (err) { console.error(err); }
+      var fab = document.getElementById('alex-fab');
+      if (fab) fab.click();
+    });
+  </script>
+</body>
+</html>
